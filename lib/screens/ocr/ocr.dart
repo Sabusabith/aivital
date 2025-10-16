@@ -9,6 +9,52 @@ class OcrScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Observe isLoading to show/hide loading dialog
+    controller.isLoading.listen((loading) {
+      if (loading) {
+        // Show loading dialog
+        Get.dialog(
+          WillPopScope(
+            // Prevent closing dialog by back button
+            onWillPop: () async => false,
+            child: Dialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(
+                      color: Colors.green,
+                      strokeWidth: 4,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      "Please wait, fetching results...",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.publicSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          barrierDismissible: false, // user cannot dismiss
+        );
+      } else {
+        // Hide dialog when loading finishes
+        if (Get.isDialogOpen ?? false) {
+          Get.back();
+        }
+      }
+    });
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFF),
       appBar: AppBar(
@@ -33,17 +79,13 @@ class OcrScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 👁️ Animated Scan Graphic (optional Lottie)
             Lottie.asset(
               'assets/images/scan.json',
               height: 200,
               repeat: true,
-
               fit: BoxFit.contain,
             ),
-
             const SizedBox(height: 30),
-
             Text(
               "Point your camera at the medicine label to automatically detect text.",
               textAlign: TextAlign.center,
@@ -53,12 +95,11 @@ class OcrScreen extends StatelessWidget {
                 height: 1.5,
               ),
             ),
-
             const SizedBox(height: 40),
-
-            // 📸 Scan Button
             ElevatedButton.icon(
-              onPressed: controller.scanText,
+              onPressed: () async {
+                await controller.scanText(context);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
@@ -78,40 +119,6 @@ class OcrScreen extends StatelessWidget {
                 style: GoogleFonts.publicSans(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 40),
-
-            // 🧾 Scanned Text Display
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Obx(
-                () => Text(
-                  controller.scannedText.value.isEmpty
-                      ? "Scanned text will appear here..."
-                      : controller.scannedText.value,
-                  textAlign: TextAlign.center,
-                  maxLines: 10,
-                  style: GoogleFonts.publicSans(
-                    fontSize: 15,
-                    color: controller.scannedText.value.isEmpty
-                        ? Colors.grey
-                        : Colors.black87,
-                  ),
                 ),
               ),
             ),

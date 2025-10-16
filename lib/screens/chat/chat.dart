@@ -6,13 +6,47 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
   final ChatController controller = Get.find<ChatController>();
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Listen for message updates and auto-scroll
+    ever(controller.messages, (_) {
+      // Wait a bit so new widget is built, then scroll
+      Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+    });
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Color(0xFFEEF5FF),
       appBar: AppBar(
         toolbarHeight: 85,
         backgroundColor: kprimerycolor,
@@ -23,7 +57,7 @@ class ChatScreen extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               "AI Symptom Checker",
               style: GoogleFonts.publicSans(
@@ -50,13 +84,14 @@ class ChatScreen extends StatelessWidget {
             colors: [Color(0xFFF7FAFF), Color(0xFFE8F0FF), Color(0xFFDCE8FF)],
           ),
         ),
-
         child: Column(
           children: [
             Expanded(
               child: Obx(
                 () => Scrollbar(
+                  controller: _scrollController,
                   child: ListView.builder(
+                    controller: _scrollController,
                     padding: const EdgeInsets.all(12),
                     itemCount: controller.messages.length,
                     itemBuilder: (context, index) {
@@ -69,34 +104,28 @@ class ChatScreen extends StatelessWidget {
             ),
             Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [
                     Colors.blueAccent,
-                    const Color.fromARGB(255, 92, 166, 202),
+                    Color.fromARGB(255, 92, 166, 202),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                // boxShadow: [
-                //   BoxShadow(
-                //     color: kprimerycolor.withOpacity(0.4),
-                //     offset: const Offset(0, 4),
-                //     blurRadius: 6,
-                //   ),
-                // ],
               ),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              // color: Colors.white,
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
+                      focusNode: _focusNode,
                       cursorColor: Colors.blue,
                       style: GoogleFonts.publicSans(
                         color: Colors.black,
                         fontSize: 16,
                       ),
                       controller: controller.textController,
+                      onTap: _scrollToBottom, // Scroll when user opens keyboard
                       decoration: InputDecoration(
                         hintText: "Describe your symptom...",
                         hintStyle: GoogleFonts.publicSans(
@@ -109,20 +138,28 @@ class ChatScreen extends StatelessWidget {
                         border: InputBorder.none,
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide(color: Colors.white),
+                          borderSide: const BorderSide(color: Colors.white),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide(color: Colors.white24),
+                          borderSide: const BorderSide(color: Colors.white24),
                         ),
                         filled: true,
                         fillColor: Colors.white30,
-                        // fillColor: Colors.white24,
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  SendButton(onPressed: controller.sendMessage),
+                  SendButton(
+                    onPressed: () {
+                      controller.sendMessage();
+                      FocusScope.of(context).unfocus(); // hide keyboard
+                      Future.delayed(
+                        const Duration(milliseconds: 300),
+                        _scrollToBottom,
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
