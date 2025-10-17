@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
 
 class Splash extends StatelessWidget {
+  final SplashController controller = Get.put(SplashController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,44 +19,45 @@ class Splash extends StatelessWidget {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: GetBuilder<SplashController>(
-          init: SplashController(),
-          builder: (controller) => Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Replace with Lottie.asset('assets/animations/health.json') if you have animation
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: kprimerycolor.withOpacity(0.1),
+        child: Center(
+          child: Obx(
+            () => Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: controller.iconColor.value.withOpacity(0.2),
+                  ),
+                  child: Icon(
+                    Icons.health_and_safety,
+                    color: controller.iconColor.value,
+                    size: 60,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.health_and_safety,
-                  color: Colors.green,
-                  size: 60,
+                const SizedBox(height: 20),
+                Text(
+                  'AIVital',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: controller.iconColor.value,
+                    shadows: const [
+                      Shadow(
+                        color: Colors.black26,
+                        offset: Offset(1, 1),
+                        blurRadius: 2,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'AIVital',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green.shade700,
-                  shadows: const [
-                    Shadow(
-                      color: Colors.black26,
-                      offset: Offset(1, 1),
-                      blurRadius: 2,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              const CircularProgressIndicator(color: Colors.green),
-            ],
+                const SizedBox(height: 20),
+                // Optional: add Lottie animation that changes randomly
+                // Lottie.asset(controller.currentAnimation, width: 100, height: 100),
+              ],
+            ),
           ),
         ),
       ),

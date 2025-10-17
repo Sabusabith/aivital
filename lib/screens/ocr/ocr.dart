@@ -68,9 +68,9 @@ class OcrScreen extends StatelessWidget {
         title: Text(
           "Scan Medicine",
           style: GoogleFonts.publicSans(
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
             fontSize: 20,
-            color: Colors.white,
+            letterSpacing: 0.5,
           ),
         ),
       ),

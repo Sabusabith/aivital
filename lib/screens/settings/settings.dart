@@ -26,6 +26,7 @@ class SettingsScreen extends StatelessWidget {
             color: Colors.white,
             fontWeight: FontWeight.w600,
             fontSize: 20,
+            letterSpacing: 0.5,
           ),
         ),
         iconTheme: const IconThemeData(color: Colors.white),

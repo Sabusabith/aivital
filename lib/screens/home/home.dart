@@ -96,25 +96,51 @@ class Home extends StatelessWidget {
               title: "Symptom Checker",
               icon: Icons.chat_bubble_outline,
               route: Routes.CHAT,
-              colors: [Colors.blueAccent, Colors.lightBlueAccent],
+              colors: [
+                Colors.blueAccent,
+                Colors.lightBlueAccent,
+              ], // blue gradient
             ),
+
             _buildProCard(
               title: "Scan Medicine",
               icon: Icons.medical_services_outlined,
               route: Routes.OCR,
-              colors: [Colors.green, Colors.teal.withOpacity(.7)],
+              colors: [Colors.green, Colors.lightGreenAccent], // green gradient
             ),
+
             _buildProCard(
               title: "Mood Journal",
               icon: Icons.edit_note_outlined,
               route: Routes.JOURNAL,
-              colors: [Colors.orange, Colors.deepOrangeAccent],
+              colors: [
+                Colors.orange,
+                Colors.deepOrangeAccent,
+              ], // orange gradient
             ),
+
             _buildProCard(
               title: "Settings",
               icon: Icons.settings_outlined,
               route: Routes.SETTINGS,
-              colors: [Colors.grey, Colors.blueGrey],
+              colors: [Colors.grey, Colors.blueGrey], // grey-blue gradient
+            ),
+
+            _buildProCard(
+              title: "Nearest Pharmacy",
+              icon: Icons.local_pharmacy,
+              route: Routes.PHARMA,
+              colors: [
+                Colors.purple,
+                Colors.deepPurpleAccent,
+              ], // purple gradient
+            ),
+
+            _buildProCard(
+              title: "Nearest Hospital",
+              icon: Icons.local_hospital,
+              route: Routes.HOSPITAL,
+              colors: [Colors.red, Colors.pinkAccent], // red-pink gradient
             ),
           ],
         ),

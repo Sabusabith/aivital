@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:ai_vital/screens/ocr/widgets/ocr_result_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
@@ -110,9 +111,7 @@ class OcrController extends GetxController {
             "No analysis available.";
 
         if (context.mounted) {
-          Future.microtask(
-            () => _showResultBottomSheet(context, text, aiReply),
-          );
+          Get.to(() => OcrResultScreen(scannedText: text, aiResponse: aiReply));
         }
       } else {
         Get.snackbar(
@@ -127,173 +126,173 @@ class OcrController extends GetxController {
   }
 
   /// 🧾 Bottom sheet with AI output
-  void _showResultBottomSheet(
-    BuildContext context,
-    String scannedText,
-    String aiResponse,
-  ) {
-    // Shorten scanned text to first 3 lines for neatness
-    final List<String> scannedLines = scannedText.split('\n');
-    final String shortScannedText = scannedLines.take(3).join(' ');
+  // void _showResultBottomSheet(
+  //   BuildContext context,
+  //   String scannedText,
+  //   String aiResponse,
+  // ) {
+  //   // Shorten scanned text to first 3 lines for neatness
+  //   final List<String> scannedLines = scannedText.split('\n');
+  //   final String shortScannedText = scannedLines.take(3).join(' ');
 
-    // Convert AI response into neat bullet points
-    final List<String> bullets = aiResponse
-        .split(RegExp(r'[\n•\-]'))
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
+  //   // Convert AI response into neat bullet points
+  //   final List<String> bullets = aiResponse
+  //       .split(RegExp(r'[\n•\-]'))
+  //       .map((e) => e.trim())
+  //       .where((e) => e.isNotEmpty)
+  //       .toList();
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: 0.65,
-          maxChildSize: 0.95,
-          minChildSize: 0.4,
-          builder: (_, scrollController) => Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(25),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26.withOpacity(0.1),
-                  blurRadius: 15,
-                  spreadRadius: 5,
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            child: Stack(
-              children: [
-                ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.only(top: 40),
-                  children: [
-                    // Drag handle
-                    Center(
-                      child: Container(
-                        width: 60,
-                        height: 6,
-                        margin: const EdgeInsets.only(bottom: 20),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                      ),
-                    ),
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     backgroundColor: Colors.transparent,
+  //     builder: (context) {
+  //       return DraggableScrollableSheet(
+  //         expand: false,
+  //         initialChildSize: 0.65,
+  //         maxChildSize: 0.95,
+  //         minChildSize: 0.4,
+  //         builder: (_, scrollController) => Container(
+  //           decoration: BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius: const BorderRadius.vertical(
+  //               top: Radius.circular(25),
+  //             ),
+  //             boxShadow: [
+  //               BoxShadow(
+  //                 color: Colors.black26.withOpacity(0.1),
+  //                 blurRadius: 15,
+  //                 spreadRadius: 5,
+  //               ),
+  //             ],
+  //           ),
+  //           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+  //           child: Stack(
+  //             children: [
+  //               ListView(
+  //                 controller: scrollController,
+  //                 padding: const EdgeInsets.only(top: 40),
+  //                 children: [
+  //                   // Drag handle
+  //                   Center(
+  //                     child: Container(
+  //                       width: 60,
+  //                       height: 6,
+  //                       margin: const EdgeInsets.only(bottom: 20),
+  //                       decoration: BoxDecoration(
+  //                         color: Colors.grey[300],
+  //                         borderRadius: BorderRadius.circular(3),
+  //                       ),
+  //                     ),
+  //                   ),
 
-                    // Header: Medicine Name / Key Info
-                    Text(
-                      scannedLines.first, // main title
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
+  //                   // Header: Medicine Name / Key Info
+  //                   Text(
+  //                     scannedLines.first, // main title
+  //                     style: const TextStyle(
+  //                       fontSize: 20,
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.green,
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 15),
 
-                    // Scanned Text Section (Concise & Neat)
-                    if (shortScannedText.isNotEmpty)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.green[50],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          shortScannedText +
-                              (scannedLines.length > 3 ? "..." : ""),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black87,
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                    const SizedBox(height: 20),
+  //                   // Scanned Text Section (Concise & Neat)
+  //                   if (shortScannedText.isNotEmpty)
+  //                     Container(
+  //                       width: double.infinity,
+  //                       padding: const EdgeInsets.all(12),
+  //                       decoration: BoxDecoration(
+  //                         color: Colors.green[50],
+  //                         borderRadius: BorderRadius.circular(12),
+  //                       ),
+  //                       child: Text(
+  //                         shortScannedText +
+  //                             (scannedLines.length > 3 ? "..." : ""),
+  //                         style: const TextStyle(
+  //                           fontSize: 14,
+  //                           color: Colors.black87,
+  //                           height: 1.5,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   const SizedBox(height: 20),
 
-                    // AI Response Section
-                    Text(
-                      "Analysis & Recommendations",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blueGrey,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
+  //                   // AI Response Section
+  //                   Text(
+  //                     "Analysis & Recommendations",
+  //                     style: const TextStyle(
+  //                       fontSize: 18,
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.blueGrey,
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 12),
 
-                    // Bulleted AI Response
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: bullets.map((point) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "• ",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    point,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black87,
-                                      height: 1.6,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-                  ],
-                ),
+  //                   // Bulleted AI Response
+  //                   Container(
+  //                     width: double.infinity,
+  //                     padding: const EdgeInsets.all(15),
+  //                     decoration: BoxDecoration(
+  //                       color: Colors.grey[100],
+  //                       borderRadius: BorderRadius.circular(15),
+  //                       boxShadow: [
+  //                         BoxShadow(
+  //                           color: Colors.black12.withOpacity(0.05),
+  //                           blurRadius: 8,
+  //                           offset: const Offset(0, 4),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                     child: Column(
+  //                       crossAxisAlignment: CrossAxisAlignment.start,
+  //                       children: bullets.map((point) {
+  //                         return Padding(
+  //                           padding: const EdgeInsets.symmetric(vertical: 4),
+  //                           child: Row(
+  //                             crossAxisAlignment: CrossAxisAlignment.start,
+  //                             children: [
+  //                               const Text(
+  //                                 "• ",
+  //                                 style: TextStyle(
+  //                                   fontSize: 16,
+  //                                   color: Colors.black87,
+  //                                 ),
+  //                               ),
+  //                               Expanded(
+  //                                 child: Text(
+  //                                   point,
+  //                                   style: const TextStyle(
+  //                                     fontSize: 14,
+  //                                     color: Colors.black87,
+  //                                     height: 1.6,
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                         );
+  //                       }).toList(),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 25),
+  //                 ],
+  //               ),
 
-                // Close icon (top-right)
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: IconButton(
-                    icon: const Icon(Icons.close, size: 28, color: Colors.grey),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  //               // Close icon (top-right)
+  //               Positioned(
+  //                 right: 0,
+  //                 top: 0,
+  //                 child: IconButton(
+  //                   icon: const Icon(Icons.close, size: 28, color: Colors.grey),
+  //                   onPressed: () => Navigator.of(context).pop(),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 }

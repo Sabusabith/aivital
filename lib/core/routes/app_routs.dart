@@ -8,4 +8,6 @@ abstract class Routes {
   static const OCR = '/ocr';
   static const JOURNAL = '/journal';
   static const SETTINGS = '/settings';
+  static const PHARMA = '/pharma';
+  static const HOSPITAL = '/hospital';
 }
