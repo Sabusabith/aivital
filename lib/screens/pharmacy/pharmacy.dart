@@ -17,7 +17,7 @@ class Pharmacy extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Color(0xFFF8FAFF),
       appBar: AppBar(
         centerTitle: true,
         shape: const RoundedRectangleBorder(
@@ -66,10 +66,18 @@ class Pharmacy extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
+                        // Main shadow for elevation
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.15),
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 15,
+                          spreadRadius: 1,
+                          offset: const Offset(0, 8),
+                        ),
+                        // Subtle secondary shadow for depth
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.05),
                           blurRadius: 10,
-                          offset: const Offset(0, 4),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),

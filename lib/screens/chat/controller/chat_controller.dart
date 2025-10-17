@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:ai_vital/screens/chat/model/chat_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -9,8 +10,7 @@ class ChatController extends GetxController {
   TextEditingController textController = TextEditingController();
 
   // 🔑 Replace with your actual OpenRouter API key
-  final String openRouterApiKey =
-      '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';
+  final String openRouterApiKey = dotenv.env['API_KEY'] ?? '';
   final String modelName =
       'anthropic/claude-3.5-sonnet'; // or another supported model
   final String openRouterUrl = 'https://openrouter.ai/api/v1/chat/completions';

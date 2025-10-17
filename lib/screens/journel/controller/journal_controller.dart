@@ -1,5 +1,6 @@
 import 'package:ai_vital/screens/journel/service/service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 
 class JournalController extends GetxController {
@@ -15,7 +16,7 @@ class JournalController extends GetxController {
   void onInit() {
     super.onInit();
     _service = OpenRouterService(
-      "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", // ⚠️ Secure later
+      dotenv.env['API_KEY'] ?? '', // ⚠️ Secure later
     );
   }
 

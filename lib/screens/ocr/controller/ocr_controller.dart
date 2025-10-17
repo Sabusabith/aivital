@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:ai_vital/screens/ocr/widgets/ocr_result_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,8 +17,7 @@ class OcrController extends GetxController {
 
   // OpenRouter or Gemini endpoint
   final String apiUrl = "https://openrouter.ai/api/v1/chat/completions";
-  final String apiKey =
-      "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"; // keep secure!
+  final String apiKey = dotenv.env['API_KEY'] ?? ''; // keep secure!
 
   /// 📸 Pick image & recognize text using ML Kit
   Future<void> scanText(BuildContext context) async {
