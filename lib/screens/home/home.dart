@@ -69,13 +69,7 @@ class Home extends StatelessWidget {
           ),
 
           // AI Assistant FAB + Greeting
-          Positioned(
-            bottom: 16,
-            right: 16,
-            child: Obx(() {
-              return HomeAILottieChat();
-            }),
-          ),
+          Positioned(bottom: 16, right: 16, child: HomeAILottieChat()),
         ],
       ),
     );
