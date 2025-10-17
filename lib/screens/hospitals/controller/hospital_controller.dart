@@ -23,9 +23,9 @@ class HospitalController extends GetxController {
       Position position = await _determinePosition();
       double userLat = position.latitude;
       double userLon = position.longitude;
-
+      final radiusInMeters = 8000;
       final url = Uri.parse(
-        'https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"="hospital"](around:5000,$userLat,$userLon);out;',
+        'https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"="hospital"](around:$radiusInMeters,$userLat,$userLon);out;',
       );
       final response = await http.get(url);
 
@@ -121,7 +121,7 @@ class HospitalController extends GetxController {
         print("❌ Server Error: ${response.statusCode} → ${response.body}");
       }
     } catch (e) {
-      _showErrorSnackbar(title: "Unexpected Error", message: e.toString());
+      // _showErrorSnackbar(title: "Unexpected Error", message: e.toString());
       print("❌ Exception during hospital fetch: $e");
     } finally {
       isLoading.value = false;
@@ -252,14 +252,102 @@ class HospitalController extends GetxController {
   Future<Position> _determinePosition() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      showErrorSnackbar(
-        title: "Location Disabled",
-        message:
-            "Please enable GPS/location services to find nearby hospitals.",
-        actionLabel: "Open Settings",
-        onActionTap: () => Geolocator.openLocationSettings(),
+      // Elegant dialog to prompt enabling location
+      bool? openedSettings = await Get.dialog<bool>(
+        Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 10,
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.location_off, size: 60, color: Colors.orange),
+                const SizedBox(height: 16),
+                Text(
+                  "Location Disabled",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  "GPS/location services are turned off. Please enable it to continue using this feature.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Get.back(result: false),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.grey.shade200,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "Cancel",
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Get.back(result: true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          "Open Settings",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        barrierDismissible: false,
       );
-      throw Exception('Location services are disabled.');
+
+      if (openedSettings == true) {
+        await Geolocator.openLocationSettings();
+
+        // Check again if location enabled
+        serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) {
+          _showErrorSnackbar(
+            title: "Location Still Disabled",
+            message: "You need to enable GPS to use this feature.",
+          );
+          throw Exception('Location services are still disabled.');
+        }
+      } else {
+        throw Exception('Location services are disabled.');
+      }
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
@@ -268,21 +356,101 @@ class HospitalController extends GetxController {
       if (permission == LocationPermission.denied) {
         _showErrorSnackbar(
           title: "Permission Denied",
-          message: "Location access is required to find hospitals near you.",
+          message: "Location access is required to use this feature.",
         );
         throw Exception('Location permissions are denied.');
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      _showErrorSnackbar(
-        title: "Permission Denied Permanently",
-        message:
-            "Please go to settings and enable location permission for this app.",
+      bool? openedSettings = await Get.dialog<bool>(
+        Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 10,
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.lock, size: 60, color: Colors.redAccent),
+                const SizedBox(height: 16),
+                Text(
+                  "Permission Required",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  "Location permission is permanently denied. Please enable it in app settings to continue.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Get.back(result: false),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.grey.shade200,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "Cancel",
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Get.back(result: true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          "Open Settings",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        barrierDismissible: false,
       );
-      throw Exception(
-        'Location permissions are permanently denied, cannot request.',
-      );
+
+      if (openedSettings == true) {
+        await Geolocator.openAppSettings();
+        throw Exception(
+          'User must grant location permission from app settings.',
+        );
+      } else {
+        throw Exception('Location permissions are permanently denied.');
+      }
     }
 
     return await Geolocator.getCurrentPosition(
@@ -294,13 +462,13 @@ class HospitalController extends GetxController {
     Get.snackbar(
       title,
       message,
-      icon: const Icon(Icons.error_outline, color: Colors.white),
-      backgroundColor: Colors.redAccent.shade400,
-      colorText: Colors.white,
+      icon: const Icon(Icons.location_off, color: Colors.white),
+      backgroundColor: const Color(0xFFF44336), // professional red
+      colorText: Colors.white, // white for readability
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(16),
       borderRadius: 12,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 4),
     );
   }
 
@@ -309,7 +477,7 @@ class HospitalController extends GetxController {
       title,
       message,
       icon: const Icon(Icons.info_outline, color: Colors.white),
-      backgroundColor: Colors.blueAccent.shade400,
+      backgroundColor: const Color(0xFF2196F3),
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(16),
@@ -328,12 +496,12 @@ class HospitalController extends GetxController {
       title,
       message,
       icon: const Icon(Icons.error_outline, color: Colors.white),
-      backgroundColor: Colors.redAccent.shade400,
-      colorText: Colors.white,
+      backgroundColor: const Color(0xFFF44336), // professional red
+      colorText: Colors.white, // white for readability
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(16),
       borderRadius: 12,
-      duration: const Duration(seconds: 5),
+      duration: const Duration(seconds: 4),
       mainButton: actionLabel != null
           ? TextButton(
               onPressed: () {

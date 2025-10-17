@@ -33,27 +33,8 @@ class Hospitals extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 15),
-          controller.isLoading.value
-              ? SizedBox()
-              : Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "Hospitals near your location",
-                          style: GoogleFonts.publicSans(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
           const SizedBox(height: 20),
+
           // Hospital List
           Expanded(
             child: Obx(() {
@@ -66,163 +47,179 @@ class Hospitals extends StatelessWidget {
                 );
               }
 
-              if (controller.hospitals.isEmpty) {
-                return const Center(
-                  child: Text(
-                    "No hospitals found nearby",
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                );
-              }
-
-              return ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: controller.hospitals.length,
-                itemBuilder: (context, index) {
-                  final hospital = controller.hospitals[index];
-                  final distance = hospital['distance'] ?? '—';
-                  final address =
-                      hospital['address'] ?? 'Address not available';
-                  final bool isOpen = hospital['isOpen'] as bool? ?? false;
-
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: InkWell(
-                      onTap: () {
-                        Get.to(() => HospitalDetailsPage(hospital: hospital));
-                        //       controller.openInMaps(
-                        //   hospital['lat'],
-                        //   hospital['lon'],
-                        // ),
-                      },
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            // Main shadow for elevation
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 15,
-                              spreadRadius: 1,
-                              offset: const Offset(0, 8),
-                            ),
-                            // Subtle secondary shadow for depth
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Hospital Icon
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                Icons.local_hospital_rounded,
-                                color: Colors.red.shade700,
-                                size: 32,
+              return RefreshIndicator(
+                color: Colors.redAccent,
+                backgroundColor: Colors.white,
+                onRefresh: () async {
+                  await controller.fetchNearbyHospitals();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: controller.hospitals.isEmpty
+                      ? SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: const Center(
+                            child: Text(
+                              "No hospitals found nearby",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
                               ),
                             ),
-                            const SizedBox(width: 16),
+                          ),
+                        )
+                      : Column(
+                          children: controller.hospitals.map((hospital) {
+                            final distance = hospital['distance'] ?? '—';
+                            final address =
+                                hospital['address'] ?? 'Address not available';
+                            final bool isOpen =
+                                hospital['isOpen'] as bool? ?? false;
 
-                            // Hospital Info
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Title + Badge
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          hospital['name'],
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: GoogleFonts.publicSans(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                            color: Colors.grey.shade900,
-                                          ),
-                                        ),
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: InkWell(
+                                onTap: () => Get.to(
+                                  () => HospitalDetailsPage(hospital: hospital),
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.15),
+                                        blurRadius: 15,
+                                        spreadRadius: 1,
+                                        offset: const Offset(0, 8),
                                       ),
-                                      const SizedBox(width: 8),
-                                      // Badge
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.05),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
                                       Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 6,
-                                          vertical: 2,
-                                        ),
+                                        padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
-                                          color: isOpen
-                                              ? Colors.greenAccent.shade700
-                                              : Colors.redAccent.shade700,
+                                          color: Colors.red.shade50,
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
                                         ),
-                                        child: Text(
-                                          isOpen ? "Open" : "Closed",
-                                          style: GoogleFonts.publicSans(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                        child: Icon(
+                                          Icons.local_hospital_rounded,
+                                          color: Colors.red.shade700,
+                                          size: 32,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    hospital['name'],
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style:
+                                                        GoogleFonts.publicSans(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 16,
+                                                          color: Colors
+                                                              .grey
+                                                              .shade900,
+                                                        ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 2,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: isOpen
+                                                        ? Colors
+                                                              .greenAccent
+                                                              .shade700
+                                                        : Colors
+                                                              .redAccent
+                                                              .shade700,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    isOpen ? "Open" : "Closed",
+                                                    style:
+                                                        GoogleFonts.publicSans(
+                                                          color: Colors.white,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 6),
+                                            Text(
+                                              address,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: GoogleFonts.publicSans(
+                                                fontSize: 13,
+                                                color: Colors.grey.shade700,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.location_on_rounded,
+                                                  color: Colors.green.shade700,
+                                                  size: 15,
+                                                ),
+                                                const SizedBox(width: 3),
+                                                Text(
+                                                  "$distance km away",
+                                                  style: GoogleFonts.publicSans(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                    color:
+                                                        Colors.green.shade700,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 6),
-                                  // Address
-                                  Text(
-                                    address,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.publicSans(
-                                      fontSize: 13,
-                                      color: Colors.grey.shade700,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  // Distance and Maps icon
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "$distance km away",
-                                        style: GoogleFonts.publicSans(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.green.shade700,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.location_on_rounded,
-                                        color: Colors.red.shade600,
-                                        size: 22,
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ],
+                            );
+                          }).toList(),
                         ),
-                      ),
-                    ),
-                  );
-                },
+                ),
               );
             }),
           ),
