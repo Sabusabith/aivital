@@ -10,20 +10,23 @@ class OpenRouterService {
     const url = "https://openrouter.ai/api/v1/chat/completions";
 
     final headers = {
-      "Authorization":
-          "Bearer $apiKey", // ✅ use the real API key passed from controller
+      "Authorization": "Bearer $apiKey",
       "Content-Type": "application/json",
-      "HTTP-Referer": "https://your-app-name.com", // optional but recommended
+      "HTTP-Referer": "https://your-app-name.com",
       "X-Title": "Mood Journal AI",
     };
 
     final body = jsonEncode({
-      "model": "gpt-4o-mini", // ✅ shorter alias for OpenRouter GPT-4o Mini
+      "model": "gpt-4o-mini",
       "messages": [
         {
           "role": "system",
           "content":
-              "You are an empathetic AI mood assistant. Analyze the user's journal entry and determine their emotional tone (e.g., happy, sad, anxious, calm, stressed). Respond with a brief, warm message in 2–3 sentences, ending with gentle advice or encouragement.",
+              "You are an empathetic AI mood assistant. Analyze the user's journal entry and determine their emotional tone (e.g., happy, sad, anxious, calm, stressed). "
+              "Respond in the following structure:\n\n"
+              " A warm 6–7 sentence reflection that empathizes with the user's emotional state.\n"
+              " A line break.\n"
+              "💡 Tips to Improve or Manage:** Followed by 4–6 short, practical bullet points (each beginning with '-' or '•'), offering gentle self-care and mood management advice (like rest, mindfulness, journaling, yoga, etc.).",
         },
         {"role": "user", "content": journalText},
       ],

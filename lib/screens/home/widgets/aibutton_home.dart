@@ -1,3 +1,4 @@
+import 'package:ai_vital/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
@@ -24,7 +25,7 @@ class _HomeAILottieChatState extends State<HomeAILottieChat>
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    _hoverAnimation = Tween<double>(begin: 0, end: -10).animate(
+    _hoverAnimation = Tween<double>(begin: -5, end: 10).animate(
       CurvedAnimation(parent: _hoverController, curve: Curves.easeInOut),
     );
   }
@@ -42,29 +43,38 @@ class _HomeAILottieChatState extends State<HomeAILottieChat>
       builder: (context, child) {
         return Transform.translate(
           offset: Offset(0, _hoverAnimation.value),
-          child: GestureDetector(
-            onTap: () {
-              Get.toNamed("/chat");
-            },
-            child: Container(
-              width: 70,
-              height: 70,
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                shape: BoxShape.circle,
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 4,
-                    offset: Offset(0, 3),
+          child: Material(
+            color: Colors.transparent,
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              splashColor: kprimerycolor,
+              highlightColor: ksecondarycolor,
+              onTap: () {
+                Get.toNamed("/chat");
+              },
+              child: Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  color: Colors.white54,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blueGrey.shade300,
+                      blurRadius: 4,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: Lottie.asset(
+                    animate: true,
+
+                    "assets/images/robo.json",
+                    fit: BoxFit.contain,
+                    repeat: true,
                   ),
-                ],
-              ),
-              child: ClipOval(
-                child: Lottie.asset(
-                  "assets/images/robo.json",
-                  fit: BoxFit.contain,
-                  repeat: true,
                 ),
               ),
             ),

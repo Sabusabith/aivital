@@ -59,7 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             const SizedBox(height: 10),
             Text(
-              "AI Symptom Checker",
+              "AI Symptom Analyzer",
               style: GoogleFonts.publicSans(
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
@@ -106,10 +106,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Container(
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [
-                    Colors.blueAccent,
-                    Color.fromARGB(255, 92, 166, 202),
-                  ],
+                  colors: [kprimerycolor, Color.fromARGB(255, 76, 168, 244)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),

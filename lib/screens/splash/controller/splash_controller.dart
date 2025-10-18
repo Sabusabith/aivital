@@ -1,23 +1,15 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:ai_vital/core/constants/app_colors.dart';
 import 'package:ai_vital/core/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class SplashController extends GetxController {
-  Rx<Color> iconColor = Colors.green.obs;
+  Rx<Color> iconColor = kprimerycolor.obs;
   Rx<int> animationIndex = 0.obs;
 
-  final List<Color> _colors = [
-    Colors.green,
-    Colors.blue,
-    Colors.orange,
-    Colors.purple,
-    Colors.red,
-    Colors.teal,
-    Colors.pink,
-    Colors.amber,
-  ];
+  final List<Color> _colors = [kprimerycolor, Color(0xFF4CAF50), Colors.orange];
 
   final List<String> _animations = [
     'assets/animations/health1.json',

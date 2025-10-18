@@ -19,46 +19,93 @@ class OcrResultScreen extends StatelessWidget {
       "Precautions": [],
       "Side Effects": [],
       "Warnings": [],
-      "Other Information": [],
     };
 
-    String currentSection = "Other Information";
+    String currentSection = ""; // start empty — no section yet
+    String? currentSubHeading;
 
-    // Split by lines, remove Markdown symbols and trim
+    if (text.isEmpty) return sections;
+
     final lines = text
         .split('\n')
-        .map((e) => e.replaceAll(RegExp(r'[\*\:]'), '').trim())
-        .where((e) => e.isNotEmpty);
+        .map(
+          (e) => e
+              .replaceAll(RegExp(r'[*#>\_]'), '')
+              .replaceAll(RegExp(r'\s+'), ' ')
+              .trim(),
+        )
+        .where((e) => e.isNotEmpty)
+        .toList();
 
     for (final line in lines) {
       final lower = line.toLowerCase();
 
-      // Detect section headers (Markdown-style)
-      if (lower.startsWith("medicine name")) {
-        currentSection = "Medicine Name";
-        continue;
-      } else if (lower.startsWith("dosage")) {
-        currentSection = "Dosage";
-        continue;
-      } else if (lower.startsWith("uses") ||
-          lower.startsWith("usage") ||
-          lower.startsWith("use")) {
-        currentSection = "Usage";
-        continue;
-      } else if (lower.startsWith("precaution")) {
-        currentSection = "Precautions";
-        continue;
-      } else if (lower.startsWith("side effect")) {
-        currentSection = "Side Effects";
-        continue;
-      } else if (lower.startsWith("warning")) {
-        currentSection = "Warnings";
+      // Detect known section headings
+      final match = RegExp(
+        r'^(?:-?\s*)?(medicine name|dosage|uses?|usage|precautions?|side effects?|warnings?)[:\-]?\s*(.*)',
+        caseSensitive: false,
+      ).firstMatch(line);
+
+      if (match != null) {
+        final heading = match.group(1)!.toLowerCase();
+        final value = match.group(2)?.trim();
+
+        if (heading.contains("medicine name")) {
+          currentSection = "Medicine Name";
+        } else if (heading.contains("dosage")) {
+          currentSection = "Dosage";
+        } else if (heading.contains("use")) {
+          currentSection = "Usage";
+        } else if (heading.contains("precaution")) {
+          currentSection = "Precautions";
+        } else if (heading.contains("side effect")) {
+          currentSection = "Side Effects";
+        } else if (heading.contains("warning")) {
+          currentSection = "Warnings";
+        }
+
+        if (value != null && value.isNotEmpty) {
+          sections[currentSection]!.add(value);
+        }
+
+        currentSubHeading = null;
         continue;
       }
 
-      // Skip bullets like "-" but keep their content
-      final cleanedLine = line.replaceAll(RegExp(r'^[-•]\s*'), '');
-      sections[currentSection]!.add(cleanedLine);
+      // Ignore generic AI intro lines before any section heading
+      if (currentSection.isEmpty &&
+          (lower.startsWith("based on") ||
+              lower.contains("scanned medicine label") ||
+              lower.contains("details identified"))) {
+        continue;
+      }
+
+      // Subheading detection
+      if (line.endsWith(":")) {
+        currentSubHeading = line;
+        if (currentSection.isNotEmpty) {
+          sections[currentSection]!.add(line);
+        }
+        continue;
+      }
+
+      // Bullets
+      if (line.startsWith('-') || line.startsWith('•')) {
+        final cleaned = line.replaceFirst(RegExp(r'^[-•]\s*'), '').trim();
+        if (currentSection.isNotEmpty) {
+          if (currentSubHeading != null) {
+            sections[currentSection]!.add("   - $cleaned");
+          } else {
+            sections[currentSection]!.add(cleaned);
+          }
+        }
+        continue;
+      }
+
+      // Regular lines only added if inside a valid section
+      if (currentSection.isNotEmpty) {
+        sections[currentSection]!.add(line);
+      }
     }
 
     return sections;
@@ -79,7 +126,7 @@ class OcrResultScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // 🩺 Medicine name header
+            // 🩺 Medicine name or scanned title
             Text(
               scannedLines.first,
               style: const TextStyle(
@@ -90,7 +137,7 @@ class OcrResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 15),
 
-            // Scanned text preview
+            // 📸 Scanned text preview
             if (shortScannedText.isNotEmpty)
               Container(
                 padding: const EdgeInsets.all(12),
@@ -109,32 +156,37 @@ class OcrResultScreen extends StatelessWidget {
               ),
             const SizedBox(height: 25),
 
+            // 💬 Intro text (your requested line)
             const Text(
-              "AI Analysis & Recommendations",
+              "Based on the scanned medicine label, here are the key details identified:",
               style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
                 color: Colors.blueGrey,
+                height: 1.6,
               ),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 20),
 
-            // 🧾 Grouped Section Display
+            // 🧾 Grouped AI analysis (excluding “Other Information”)
             ...grouped.entries
                 .where((entry) => entry.value.isNotEmpty)
                 .map(
                   (entry) => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Section Title
                       Text(
                         entry.key,
                         style: const TextStyle(
-                          fontSize: 17,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Colors.green,
                         ),
                       ),
                       const SizedBox(height: 8),
+
+                      // Section Content
                       Container(
                         padding: const EdgeInsets.all(12),
                         margin: const EdgeInsets.only(bottom: 18),
@@ -152,24 +204,45 @@ class OcrResultScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: entry.value.map((point) {
+                            final bool isSubPoint = point.trimLeft().startsWith(
+                              '-',
+                            );
+                            final bool isSubHeading = point.endsWith(':');
+
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              padding: EdgeInsets.only(
+                                left: isSubPoint ? 20 : 0,
+                                top: 4,
+                                bottom: 4,
+                              ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    "• ",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: Colors.black87,
+                                  if (!isSubHeading && !isSubPoint)
+                                    const Text(
+                                      "• ",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                      ),
                                     ),
-                                  ),
                                   Expanded(
                                     child: Text(
-                                      point,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
+                                      point
+                                          .replaceFirst(RegExp(r'^-'), '')
+                                          .trim(),
+                                      style: TextStyle(
+                                        fontSize: isSubHeading
+                                            ? 15
+                                            : isSubPoint
+                                            ? 13
+                                            : 14,
+                                        fontWeight: isSubHeading
+                                            ? FontWeight.w600
+                                            : FontWeight.normal,
+                                        color: isSubPoint
+                                            ? Colors.grey[800]
+                                            : Colors.black87,
                                         height: 1.5,
                                       ),
                                     ),

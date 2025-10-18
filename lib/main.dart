@@ -1,4 +1,4 @@
-import 'package:ai_vital/core/constants/app_theme.dart';
+import 'package:ai_vital/core/theme/app_theme.dart';
 import 'package:ai_vital/core/routes/app_pages.dart';
 import 'package:ai_vital/screens/splash/splash.dart';
 import 'package:flutter/material.dart';

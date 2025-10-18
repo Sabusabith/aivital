@@ -28,10 +28,10 @@ class Home extends StatelessWidget {
               crossAxisSpacing: 20,
               children: [
                 _buildProCard(
-                  title: "Symptom Checker",
+                  title: "Symptom Analyzer",
                   icon: Icons.chat_bubble_outline,
                   route: Routes.CHAT,
-                  colors: [Colors.blueAccent, Colors.lightBlueAccent],
+                  colors: [kprimerycolor, ksecondarycolor],
                 ),
                 _buildProCard(
                   title: "Scan Medicine",
@@ -64,6 +64,12 @@ class Home extends StatelessWidget {
                   route: Routes.SETTINGS,
                   colors: [Colors.grey, Colors.blueGrey],
                 ),
+                _buildProCard(
+                  title: "Health Recommendations",
+                  icon: Icons.restaurant_menu_outlined,
+                  route: Routes.HEALTHPROFILE,
+                  colors: [Colors.teal, Colors.lightGreen],
+                ),
               ],
             ),
           ),
@@ -81,7 +87,7 @@ class Home extends StatelessWidget {
         height: 140,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF42A5F5), Color(0xFF478DE0)],
+            colors: [kprimerycolor, Color.fromARGB(255, 81, 169, 241)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -133,7 +139,7 @@ class Home extends StatelessWidget {
           margin: const EdgeInsets.only(right: 12, top: 12),
           child: CircleAvatar(
             radius: 20,
-            backgroundColor: Colors.white24,
+            backgroundColor: Colors.white30,
             child: IconButton(
               icon: const Icon(Icons.notifications, color: Colors.white),
               onPressed: () {},

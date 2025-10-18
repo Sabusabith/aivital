@@ -105,7 +105,12 @@ class OcrController extends GetxController {
       print("📡 Response (${response.statusCode}): ${response.body}");
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final safeBody = response.body.trim().replaceAll(
+          RegExp(r'[\u0000-\u001F]'),
+          '',
+        );
+
+        final data = jsonDecode(safeBody);
         final aiReply =
             data['choices']?[0]?['message']?['content'] ??
             "No analysis available.";

@@ -1,12 +1,11 @@
 import 'package:ai_vital/core/data/controller/userhealth_profile_controller.dart';
 import 'package:ai_vital/screens/home/controller/home_controller.dart';
-import 'package:ai_vital/screens/ocr/controller/ocr_controller.dart';
+import 'package:ai_vital/screens/pharmacy/controller/pharmacy_controller.dart';
 import 'package:get/get.dart';
 
-class OcrBindings extends Bindings {
+class UserHealthRecomantationBindings extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<OcrController>(() => OcrController());
-    Get.lazyPut(() => HealthProfileController()); // Add this line
+    Get.lazyPut<HealthProfileController>(() => HealthProfileController());
   }
 }
