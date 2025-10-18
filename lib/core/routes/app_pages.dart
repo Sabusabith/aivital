@@ -15,8 +15,7 @@ import 'package:ai_vital/screens/settings/bindings/settings_bindings.dart';
 import 'package:ai_vital/screens/settings/settings.dart';
 import 'package:ai_vital/screens/splash/bindings/splash_bindings.dart';
 import 'package:ai_vital/screens/splash/splash.dart';
-import 'package:ai_vital/screens/user_health_recomantation/bindings/user_health_recomantation_bindings.dart';
-import 'package:ai_vital/screens/user_health_recomantation/userhealth_recomantaion.dart';
+
 import 'package:get/get.dart';
 
 part 'app_routs.dart';
@@ -77,13 +76,6 @@ class AppPages {
       name: Routes.HOSPITAL,
       page: () => Hospitals(),
       binding: HospitalBindings(),
-      transition: Transition.cupertino, // smooth professional transition
-      transitionDuration: const Duration(milliseconds: 400),
-    ),
-    GetPage(
-      name: Routes.HEALTHPROFILE,
-      page: () => HealthRecommendationScreen(),
-      binding: UserHealthRecomantationBindings(),
       transition: Transition.cupertino, // smooth professional transition
       transitionDuration: const Duration(milliseconds: 400),
     ),

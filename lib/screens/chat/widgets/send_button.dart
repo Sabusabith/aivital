@@ -1,6 +1,4 @@
-import 'package:ai_vital/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class SendButton extends StatelessWidget {
   final VoidCallback onPressed;

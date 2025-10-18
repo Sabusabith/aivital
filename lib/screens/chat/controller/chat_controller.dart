@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:ai_vital/core/data/controller/userhealth_profile_controller.dart';
 import 'package:ai_vital/screens/chat/model/chat_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -9,8 +8,6 @@ import 'package:http/http.dart' as http;
 class ChatController extends GetxController {
   var messages = <ChatMessage>[].obs;
   TextEditingController textController = TextEditingController();
-  final HealthProfileController _healthProfileController =
-      Get.find<HealthProfileController>();
 
   // 🔑 Replace with your actual OpenRouter API key
   final String openRouterApiKey = dotenv.env['API_KEY'] ?? '';
@@ -73,7 +70,6 @@ class ChatController extends GetxController {
                 text: current,
                 isUser: false,
               );
-              _healthProfileController.updateOtherData({'chat_ai': current});
             }
           } catch (e) {
             print('⚠️ Stream parse error: $e');

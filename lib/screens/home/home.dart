@@ -64,12 +64,6 @@ class Home extends StatelessWidget {
                   route: Routes.SETTINGS,
                   colors: [Colors.grey, Colors.blueGrey],
                 ),
-                _buildProCard(
-                  title: "Health Recommendations",
-                  icon: Icons.restaurant_menu_outlined,
-                  route: Routes.HEALTHPROFILE,
-                  colors: [Colors.teal, Colors.lightGreen],
-                ),
               ],
             ),
           ),

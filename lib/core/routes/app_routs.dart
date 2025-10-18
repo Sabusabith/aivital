@@ -10,5 +10,4 @@ abstract class Routes {
   static const SETTINGS = '/settings';
   static const PHARMA = '/pharma';
   static const HOSPITAL = '/hospital';
-  static const HEALTHPROFILE = '/healthprofile';
 }
